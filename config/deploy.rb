@@ -1,5 +1,6 @@
 set :application, 'my_app_name'
 set :repo_url, 'git@example.com:me/my_repo.git'
+set :theme_name, 'my_theme_name'
 
 # Branch options
 # Prompts for the branch name (defaults to current branch)
@@ -59,3 +60,40 @@ end
 # Note that you need to have WP-CLI installed on your server
 # Uncomment the following line to run it on deploys if needed
 # after 'deploy:publishing', 'deploy:update_option_paths'
+
+# This task compiles and uploads the theme files to the server
+
+namespace :deploy do
+ 
+  # Theme path
+  set :theme_path, Pathname.new('web/app/themes').join(fetch(:theme_name))
+ 
+  # Local Paths
+  set :local_theme_path, Pathname.new(File.dirname(__FILE__)).join('../').join(fetch(:theme_path))
+  set :local_dist_path, fetch(:local_theme_path).join('dist')
+ 
+  task :compile do
+    run_locally do
+      within fetch(:local_theme_path) do
+        execute :gulp, '--production'
+      end
+    end
+  end
+ 
+  task :copy do
+    on roles(:web) do
+ 
+      # Remote Paths (Lazy-load until actual deploy)
+      set :remote_dist_path, -> { release_path.join(fetch(:theme_path)).join('dist') }
+ 
+      info " Local dist path: #{fetch(:local_dist_path)} "
+      info " Remote dist path: #{fetch(:remote_dist_path)} "
+      info " Uploading files to remote "
+      upload! fetch(:local_dist_path).to_s, fetch(:remote_dist_path), recursive: true
+    end
+  end
+ 
+  task assets: %w(compile copy)
+end
+ 
+after 'deploy:updated', 'deploy:assets'

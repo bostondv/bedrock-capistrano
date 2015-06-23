@@ -1,4 +1,5 @@
 set :stage, :staging
+set :user, 'my_username'
 
 # Simple Role Syntax
 # ==================
@@ -8,7 +9,7 @@ set :stage, :staging
 
 # Extended Server Syntax
 # ======================
-server 'example.com', user: 'deploy', roles: %w{web app db}
+server 'example.com', user: fetch(:user), roles: %w{web app db}
 
 # you can set custom ssh options
 # it's possible to pass any option but you need to keep in mind that net/ssh understand limited list of options
@@ -19,5 +20,10 @@ server 'example.com', user: 'deploy', roles: %w{web app db}
 #    forward_agent: false,
 #    auth_methods: %w(password)
 #  }
+
+# You can override options for this stage
+# For example:
+# set :deploy_to, "/home/#{fetch(:user)}/#{fetch(:application)}
+# set :tmp_dir, "/home/#{fetch(:user)}/tmp"
 
 fetch(:default_env).merge!(wp_env: :staging)
