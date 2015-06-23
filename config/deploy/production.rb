@@ -23,7 +23,7 @@ server 'example.com', user: fetch(:user), roles: %w{web app db}
 
 # You can override options for this stage
 # For example:
-# set :deploy_to, "/home/#{fetch(:user)}/#{fetch(:application)}
+# set :deploy_to, "/home/#{fetch(:user)}/#{fetch(:application)}"
 # set :tmp_dir, "/home/#{fetch(:user)}/tmp"
 
 fetch(:default_env).merge!(wp_env: :production)
